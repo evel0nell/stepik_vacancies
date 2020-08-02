@@ -1,6 +1,6 @@
 import random
 
-from django.shortcuts import render, get_object_or_404, Http404
+from django.shortcuts import render, Http404
 from django.views import View
 
 from vacancies.models import Vacancy, Specialty, Company
@@ -24,6 +24,12 @@ class MainView(View):
         )
 
 
+'''
+
+ALL VACANCIES
+'''
+
+
 class VacancyListView(View):
     def get(self, request):
         return render(
@@ -40,23 +46,20 @@ class SpecialisationListView(View):
 
 
 class VacancyView(View):
-    def get(self, request, vacancy_id: int):
-        vacancy = Vacancy.objects.filter(id=vacancy_id).first()
-        if not vacancy:
-            raise Http404
+    def get(self, request, id: int):
         return render(
-            request, "vacancies/vacancy.html", {"vacancy": vacancies.get(id=vacancy_id)}
+            request, "vacancies/vacancy.html", {"vacancy": vacancies.get(id=id)}
         )
 
 
 class CompanyView(View):
-    def get(self, request, company_id: int):
-        company = get_object_or_404(Company, id=company_id)
-        context = {"company": company}
+    def get(self, request, id: int):
+        company = Vacancy.objects.filter(id=id).first()
+        if not company:
+            raise Http404
         return render(
-            request, "vacancies/company.html", {"company": companies.get(id=company_id),
-                                                "vacancies": vacancies.filter(company=company_id)},
-            context=context
+            request, "vacancies/company.html", {"company": companies.get(id=id),
+                                                "vacancies": vacancies.filter(company=id)}
         )
 
 
@@ -65,8 +68,6 @@ class CompanyListView(View):
         return render(
             request, "vacancies/companies.html", {"companies": companies}
         )
-
-
 def handler404(request, exception=None):
     return render(request, "404.html", status=404)
 
