@@ -68,6 +68,8 @@ class CompanyListView(View):
         return render(
             request, "vacancies/companies.html", {"companies": companies}
         )
+
+
 def handler404(request, exception=None):
     return render(request, "404.html", status=404)
 
