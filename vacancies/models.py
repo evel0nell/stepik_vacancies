@@ -7,9 +7,15 @@ from django.contrib.auth.models import User
 
 class Specialty(models.Model):
 
+
+
+
     code = models.CharField(max_length=20)
     title = models.CharField(max_length=50)
     picture = ...
+
+    def __str__(self):
+        return self.title
 
 
 class Company(models.Model):
@@ -18,6 +24,8 @@ class Company(models.Model):
     logo = ...
     description = models.CharField(max_length=1000)
     employee_count = models.IntegerField()
+    def __str__(self):
+        return self.name
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='company', null=True)
 
@@ -32,6 +40,8 @@ class Vacancy(models.Model):
     salary_min = models.IntegerField()
     salary_max = models.IntegerField()
     published_at = models.DateField()
+    def __str__(self):
+        return self.title
 
 
 
@@ -41,3 +51,4 @@ class Application(models.Model):
     written_cover_letter = models.CharField(max_length=1000)
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name="applications")
 #   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
+
