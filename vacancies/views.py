@@ -11,14 +11,14 @@ from stepik_vacancies.forms import MyCreationForm, ApplicationForm, \
     EditMyCompanyForm, EditMyVacancyForm, MyAutorisationForm
 from vacancies.models import Vacancy, Specialty, Company
 
-specialities = Specialty.objects.all()
-companies = Company.objects.all()
-vacancies = Vacancy.objects.all()
+
 
 
 class MainView(View):
 
     def get(self, request):
+        specialities= Specialty.objects.all()
+        companies = Company.objects.all()
         # k - количество случайных элементов списка
         random_specialities = random.sample(set(specialities), k=4)
 
@@ -38,6 +38,7 @@ ALL VACANCIES
 
 class VacancyListView(View):
     def get(self, request):
+        vacancies = Vacancy.objects.all()
         return render(
             request, "vacancies/vacancies.html", {"vacancies": vacancies}
         )
@@ -45,6 +46,7 @@ class VacancyListView(View):
 
 class SpecialisationListView(View):
     def get(self, request, code):
+        vacancies = Vacancy.objects.all()
         return render(
             request, "vacancies/vacancies_cat.html", {"vacancies": vacancies.filter(cat__code=code),
                                                       "title": Specialty.objects.get(code=code).title}
@@ -52,9 +54,10 @@ class SpecialisationListView(View):
 
 
 class VacancyView(View):
-    vacancies = Vacancy.objects.all()
+
 
     def get(self, request, id: int):
+        vacancies = Vacancy.objects.all()
         return render(
             request, "vacancies/vacancy.html", {"vacancy": vacancies.get(id=id),
                                                 'form': ApplicationForm()}
@@ -70,6 +73,8 @@ class VacancyView(View):
 
 class CompanyView(View):
     def get(self, request, id: int):
+        vacancies = Vacancy.objects.all()
+        companies = Company.objects.all()
         company = companies.get(id=id)
         return render(
             request, "vacancies/company.html", {"company": company,
@@ -79,6 +84,7 @@ class CompanyView(View):
 
 class CompanyListView(View):
     def get(self, request):
+        companies = Company.objects.all()
         return render(
             request, "vacancies/companies.html", {"companies": companies}
         )
@@ -86,10 +92,33 @@ class CompanyListView(View):
 
 class MyCompanyView(View):
     def get(self, request):
-        form = EditMyCompanyForm
+
+        if not Company.objects.filter(owner=request.user).exists():
+            return render(request, 'vacancies/company-create.html')
+        else:
+            form = EditMyCompanyForm
+            return render(request, 'vacancies/company-edit.html', {'form': form})
+
+    def post(self, request):
+        form = EditMyCompanyForm(request.POST)
+        user_company = Company.objects.get(owner=request.user)
+        if form.is_valid():
+            data = form.cleaned_data
+            user_company.name=data['name'],
+            user_company.location=data['location'],
+            user_company.description=data['description'],
+            user_company.data['employee_count']
+
+            user_company.save()
 
         return render(request, 'vacancies/company-edit.html', {'form': form})
 
+class MyCompanyCreate(View):
+    def get(self, request):
+
+
+            form = EditMyCompanyForm
+            return render(request, 'vacancies/company-edit.html', {'form': form})
     def post(self, request):
         form = EditMyCompanyForm(request.POST)
         if form.is_valid():
@@ -104,7 +133,6 @@ class MyCompanyView(View):
             user_company.save()
 
         return render(request, 'vacancies/company-edit.html', {'form': form})
-
 
 class MyVacanciesView(View):
     def get(self, request):
@@ -121,17 +149,15 @@ class MyVacanciesView(View):
 class MyVacancyEdit(View):
 
     def get(self, request, id: int):
+        vacancies=Vacancy.objects.all()
         form = EditMyVacancyForm()
-
-        list = Specialty.objects.all()
-
         return render(request, "vacancies/company-vacancy-edit.html", {'vacancy': vacancies.get(id=id),
-                                                                       'form': form, 'list': list})
+                                                                       'form': form})
 
     def post(self, request, id: int):
         form = EditMyVacancyForm(request.POST)
         user = request.user
-        list = Specialty.objects.all()
+
         user_vacancy = Vacancy.objects.get(id=id)
         if form.is_valid():
             data = form.cleaned_data

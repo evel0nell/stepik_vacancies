@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.forms import ModelForm, Textarea, TextInput, NumberInput, ModelChoiceField
 from vacancies.models import Company, Vacancy, Specialty
 
@@ -51,6 +52,7 @@ class EditMyCompanyForm(ModelForm):
             'description': Textarea(attrs=TextAttrib),
             'employee_count': NumberInput(attrs={'class': 'form-control'})
         }
+
 
 
 '''<input class="form-control" type="text" value="Staffing Smarter" id="companyName">'''
